@@ -125,6 +125,11 @@ public class Offer {
 	public boolean isAmazon;
 
 	/**
+	 * Whether or not this offer is fulfilled by Amazon.
+	 */
+	public boolean isFBA;
+
+	/**
 	 * A Prime exclusive offer can only be ordered if the buyer has an active Prime subscription.
 	 */
 	public boolean isPrimeExcl;
