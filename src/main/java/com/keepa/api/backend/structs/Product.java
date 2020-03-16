@@ -1,8 +1,11 @@
 package com.keepa.api.backend.structs;
 
 
+import com.google.gson.*;
+import com.google.gson.annotations.JsonAdapter;
 import com.keepa.api.backend.helper.KeepaTime;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import static com.keepa.api.backend.helper.Utility.gson;
@@ -288,7 +291,7 @@ public final class Product {
 	/**
 	 * Keepa product type {@link Product.ProductType}. Must always be evaluated first.
 	 */
-	public byte productType = 0;
+	public ProductType productType = ProductType.STANDARD;
 
 	/**
 	 * Whether or not the product has reviews.
@@ -364,7 +367,7 @@ public final class Product {
 	 * Availability of the Amazon offer {@link Product.AvailabilityType}. If Amazon offer exists but does not hold the buy box the value will be 2 (unknown).
 	 * To request the Amazon availability in such cases the offers parameter is required.
 	 */
-	public int availabilityAmazon = -1;
+	public AvailabilityType availabilityAmazon = AvailabilityType.NO_OFFER;
 
 	/**
 	 * Contains coupon details if any are available for the product. null if not available.
@@ -617,7 +620,8 @@ public final class Product {
 			return AMAZON;
 		}
 	}
-
+	
+	@JsonAdapter(AvailabilityType.Serializer.class)
 	public enum AvailabilityType {
 		/**
 		 * No Amazon offer exists
@@ -658,8 +662,22 @@ public final class Product {
 				throw new IllegalArgumentException("Unknown struct value: " + value);
 			}
 		}
+		static class Serializer implements JsonSerializer<AvailabilityType>, JsonDeserializer<AvailabilityType> {
+			@Override
+			public JsonElement serialize(AvailabilityType src, Type typeOfSrc, JsonSerializationContext context) {
+				return context.serialize(src.code);
+			}
+			
+			@Override
+			public AvailabilityType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+				return fromValue(json.getAsInt());
+			}
+			
+			
+		}
 	}
-
+	
+	@JsonAdapter(ProductType.Serializer.class)
 	public enum ProductType {
 		/**
 		 * standard product - everything accessible
@@ -711,6 +729,21 @@ public final class Product {
 		public String toString() {
 			return String.valueOf(code);
 		}
+		
+		static class Serializer implements JsonSerializer<ProductType>, JsonDeserializer<ProductType> {
+			@Override
+			public JsonElement serialize(ProductType src, Type typeOfSrc, JsonSerializationContext context) {
+				return context.serialize(src.code);
+			}
+			
+			@Override
+			public ProductType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+				return fromValue(json.getAsByte());
+			}
+			
+			
+		}
+		
 	}
 
 	public class CategoryTreeEntry {
